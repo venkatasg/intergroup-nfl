@@ -1,0 +1,82 @@
+Tag references to entities as in-group ([IN]), out-group ([OUT]) or other ([OTHER]) in live, online sports comments during NFL games. The input is the comment, the in-group team the commenter supports, the out-group opponent team during that game, and the win probability for the in-group at the time of the comment. The win probability is the probability of the in-group winning the game at the time of the comment - if the win probability is high, the in-group team is probably doing well and going to win. Using knowledge of American football and contextual language understanding, identify words and phrases denoting entities (players, teams, city names, sub-groups within the team) that refer to the in-group ([IN] - team the commenter supports), out-group ([OUT] - the opponent) or other teams ([OTHER] - some other team in the NFL that is not the in-group or the opponent), with respect to the commenter. Return the list of words/phrases that are to be tagged (REF_EXPRESSIONS), an EXPLANATION reasoning over why these words and phrases in COMMENT should be tagged and with what tag, and the TARGET comment itself with relevant words/phrases replaced with the respective tags ([IN], [OUT] or [OTHER]) in your final output.
+
+Each sentence in a comment is separated by a [SENT] token. Sometimes a sentence in the comment will be about the in/out/other group but not have an explicit word/phrase that refers to the group; In such cases, tag the [SENT] token for that sentence with the corresponding tag label.
+
+Here are 6 examples, with REF_EXPRESSIONS being the list of words/phrases to be tagged from COMMENT, EXPLANATION being a reasonable reason for why these words/phrases should be tagged with appropriate tags, and TARGET being the correct tagged output for COMMENT.
+
+### Examples
+
+#### Example 1
+
+COMMENT: [SENT] Defense getting absolutely bullied by a dude that looks like he sells solar panels
+IN-GROUP: Jets
+OUT-GROUP: Bears
+WIN PROBABILITY: 71.5%
+REF_EXPRESSIONS: ['Defense', 'a dude', 'he']
+EXPLANATION: The commenter is probably talking about the in-group, since 'Defense' is said without qualification, and the description of the offensive player is disparaging ('he sells solar panels'). This is in spite of the win probability being relatively high for the in-group - sometimes commenters choose to focus on immediate plays rather than the overall state of the game, so perhaps this comment was in response to a bad showing by the defense. 'Defense' should be tagged [IN] since it refers to in-group, and 'a dude' and 'he' should be tagged [OUT] since it refers to an out-group offensive player.
+TARGET: [SENT] [IN] getting absolutely bullied by [OUT] that looks like [OUT] sells solar panels .
+
+#### Example 2
+
+COMMENT: [SENT] Hasn't really been him . [SENT] Receivers have been missing a lot of easy catches.
+IN-GROUP: Dolphins
+OUT-GROUP: Chargers
+WIN PROBABILITY: 49.2%
+REF_EXPRESSIONS: ['him', 'Receivers']
+EXPLANATION: The second sentence is complaining about the receivers missing a lot of catches, thus absolving another player of some blame, which is something fans would only do for the in-group team they support. Thus 'him' in first sentence, and 'Receivers' in second sentence should be tagged with [IN].
+TARGET: [SENT] Hasn't really been [IN] . [SENT] [IN] have been missing a lot of easy catches .
+
+#### Example 3
+
+COMMENT: [SENT] Cards and rams are gonna be in the post-season regardless, so I don't really care about them losing unless they play us.
+IN-GROUP: 49ers
+OUT-GROUP: Jaguars
+WIN PROBABILITY: 99.7%
+REF_EXPRESSIONS: ['Cards', 'rams', 'them']
+EXPLANATION: The game is between the 49ers and Jaguars, while the words 'Cards' and 'rams' refers to other teams in the NFL that are not the in-group or out-group. Thus they should be tagged [OTHER] since they are neither in-group nor out-group, as should the word 'them'. 'us' should be tagged [IN] since it refers to the in-group team the player supports.
+TARGET: [SENT] [OTHER] and [OTHER] are gonna be in the post-season regardless, so I don't really care about [OTHER] losing unless they play [IN].
+
+#### Example 4
+
+COMMENT: [SENT] How are we this shit on defense
+IN-GROUP: Steelers
+OUT-GROUP: Eagles
+WIN PROBABILITY: 4.0%
+REF_EXPRESSIONS: ['we']
+EXPLANATION: 'we' here, and almost always, refers to the in-group since they don't like their team's defense, which is reflected in the low win probability. 'we' should therefore be tagged with [IN] since it refers to in-group.
+TARGET: [SENT] How are [IN] this shit on defense
+
+#### Example 5
+
+COMMENT: [SENT] The chiefs got straight fucked with that Herbert INT getting called dead . [SENT] Suck it , KC !	
+IN-GROUP: Chargers
+OUT-GROUP: Chiefs
+WIN PROBABILITY: 43.2%
+REF_EXPRESSIONS: ['The chiefs', 'Herbert', 'KC']
+EXPLANATION: This is a game between the Chiefs and the Chargers, and the commenter is a supporter of the Chiefs, so 'the chiefs' in the first sentence and 'KC' in the second sentence should be tagged [OUT]. Herbert is a player for the Chargers, and should be tagged with [IN] since he is a member of the in-group with respect to the commenter.
+TARGET: [SENT] [OUT] got straight fucked with that [IN] INT getting called dead . [SENT] Suck it , [OUT] !
+
+#### Example 6
+
+COMMENT: [SENT] Need points but 7 would be HUGE momentum
+IN-GROUP: Bengals
+OUT-GROUP: Chiefs
+WIN PROBABILITY: 21.5%
+REF_EXPRESSIONS: ['[SENT]']
+EXPLANATION: The in-group team is losing currently as the win probability shows, so this comment is implicitly about the in-group needing points to gain momentum. Thus '[SENT]' should be tagged with '[IN]' since there is no explicit word/phrase that refers to the in-group, but the comment is referring to the in-group implicitly.
+TARGET: [IN] Need points but 7 would be HUGE momentum
+
+#### Example 7
+
+Some comments will have no explicit or implicit reference to the in-group, out-group, or other, or it could be extremely hard to disambiguate any references based on given information. In such cases, return Target as a copy of Comment, justify this with the Explanation, "No explicit or implicit references to tag.", and return [] for REF_EXPRESSIONS. Here is an example:
+
+COMMENT: [SENT] I thought so. [SENT] Wish I could say the same ;)
+IN-GROUP: Jaguars
+OUT-GROUP: Titans
+WIN PROBABILITY: 41.5%
+REF_EXPRESSIONS: []
+EXPLANATION: No explicit or implicit references to tag.
+TARGET: [SENT] I thought so. [SENT] Wish I could say the same ;)
+
+
+Now tag only the relevant words/phrases in the following comment as either in-group ([IN]), out-group ([OUT]), or other ([OTHER]), if any. First return the list of words to be tagged, then explain your reasoning as to why these words/phrases should be tagged from COMMENT and with which tags, and finally return the tagged comment in that order.

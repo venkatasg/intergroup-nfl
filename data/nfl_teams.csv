@@ -1,0 +1,33 @@
+team_name,team_name_short,team_id,team_id_pfr,team_conference,team_division,team_conference_pre2002,team_division_pre2002,subreddit
+Arizona Cardinals,Cardinals,ARI,CRD,NFC,NFC West,NFC,NFC West,AZCardinals
+Atlanta Falcons,Falcons,ATL,ATL,NFC,NFC South,NFC,NFC West,falcons
+Baltimore Ravens,Ravens,BAL,RAV,AFC,AFC North,AFC,AFC Central,ravens
+Buffalo Bills,Bills,BUF,BUF,AFC,AFC East,AFC,AFC East,buffalobills
+Carolina Panthers,Panthers,CAR,CAR,NFC,NFC South,NFC,NFC West,panthers
+Chicago Bears,Bears,CHI,CHI,NFC,NFC North,NFC,NFC Central,CHIBears
+Cincinnati Bengals,Bengals,CIN,CIN,AFC,AFC North,AFC,AFC Central,bengals
+Cleveland Browns,Browns,CLE,CLE,AFC,AFC North,AFC,AFC Central,Browns
+Dallas Cowboys,Cowboys,DAL,DAL,NFC,NFC East,NFC,NFC East,cowboys
+Denver Broncos,Broncos,DEN,DEN,AFC,AFC West,AFC,AFC West,DenverBroncos
+Detroit Lions,Lions,DET,DET,NFC,NFC North,NFC,NFC Central,detroitlions
+Green Bay Packers,Packers,GB,GNB,NFC,NFC North,NFC,NFC Central,GreenBayPackers
+Houston Texans,Texans,HOU,HTX,AFC,AFC South,AFC,,Texans
+Indianapolis Colts,Colts,IND,CLT,AFC,AFC South,AFC,AFC East,Colts
+Jacksonville Jaguars,Jaguars,JAX,JAX,AFC,AFC South,AFC,AFC Central,Jaguars
+Kansas City Chiefs,Chiefs,KC,KAN,AFC,AFC West,AFC,AFC West,KansasCityChiefs
+Las Vegas Raiders,Raiders,LV,RAI,AFC,,AFC,AFC West,raiders
+Los Angeles Chargers,Chargers,LAC,SDG,AFC,AFC West,AFC,AFC West,Chargers
+Los Angeles Rams,Rams,LA,RAM,NFC,NFC West,NFC,NFC West,LosAngelesRams
+Miami Dolphins,Dolphins,MIA,MIA,AFC,AFC East,AFC,AFC East,miamidolphins
+Minnesota Vikings,Vikings,MIN,MIN,NFC,NFC North,NFC,NFC Central,minnesotavikings
+New England Patriots,Patriots,NE,NWE,AFC,AFC East,AFC,AFC East,Patriots
+New Orleans Saints,Saints,NO,NOR,NFC,NFC South,NFC,NFC West,Saints
+New York Giants,Giants,NYG,NYG,NFC,NFC East,NFC,NFC East,NYGiants
+New York Jets,Jets,NYJ,NYJ,NFC,AFC East,NFC,AFC East,nyjets
+Philadelphia Eagles,Eagles,PHI,PHI,NFC,NFC East,NFC,NFC East,eagles
+Pittsburgh Steelers,Steelers,PIT,PIT,AFC,AFC North,AFC,AFC Central,steelers
+San Francisco 49ers,49ers,SF,SFO,NFC,NFC West,NFC,NFC West,49ers
+Seattle Seahawks,Seahawks,SEA,SEA,NFC,NFC West,AFC,AFC West,Seahawks
+Tampa Bay Buccaneers,Buccaneers,TB,TAM,NFC,NFC South,NFC,NFC Central,buccaneers
+Tennessee Titans,Titans,TEN,OTI,AFC,AFC South,AFC,AFC Central,Tennesseetitans
+Washington Commanders,Commanders,WAS,WAS,NFC,NFC East,NFC,NFC East,Commanders

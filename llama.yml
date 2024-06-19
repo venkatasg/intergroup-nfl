@@ -1,0 +1,61 @@
+base_model: meta-llama/Meta-Llama-3-8B
+model_type: LlamaForCausalLM
+tokenizer_type: AutoTokenizer
+seed: 5
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+datasets:
+  - path: /home/vg22453/football/modeling/data/all_train.json
+    ds_type: json
+    type: alpaca
+    split: train
+
+test_datasets:
+  - path: /home/vg22453/football/modeling/data/all_eval.json
+    ds_type: json
+    type: alpaca
+    split: train
+
+load_best_model_at_end: True
+dataset_prepared_path: /home/vg22453/football/modeling/data/
+output_dir: /home/vg22453/football/modeling/llama-8b/nowp-3/
+
+sequence_len: 2560
+sample_packing: true
+pad_to_sequence_len: true
+eval_sample_packing: false
+
+gradient_accumulation_steps: 1
+micro_batch_size: 4
+eval_batch_size: 4
+num_epochs: 2
+optimizer: paged_adamw_8bit
+lr_scheduler: cosine
+learning_rate: 1e-5
+cosine_min_lr_ratio: 0.1
+weight_decay: 0.1
+warmup_steps: 10
+
+train_on_inputs: false
+group_by_length: false
+bf16: auto
+tf32: false
+
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+logging_steps: 1
+flash_attention: true
+
+eval_steps: 0.1
+save_steps: 0.1
+save_total_limit: 3
+early_stopping_patience: 3
+special_tokens:
+   pad_token: <|end_of_text|>
+
+wandb_project: intergroup-bias
+wandb_name: llama3-fft-nowp-3
