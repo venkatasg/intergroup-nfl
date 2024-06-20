@@ -134,7 +134,7 @@ class DataGenerationArguments:
         metadata={"help": "Place to store outputs."}
     )
     wp: bool = field(
-        default=False, metadata={"help": "Use WPs as temperature"}
+        default=False, metadata={"help": "Use WPs for tempearture scaling"}
     )
 
 
