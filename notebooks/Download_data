@@ -1,0 +1,232 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d75b64e2",
+   "metadata": {},
+   "source": [
+    "This notebook is purely for downloading raw comments from posts that are most relevant for analysis. I think we should focus on comments from Game threads between teams of interest - this means that we can assume the comments will be, or were, about a specific event - the game in question."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0868403e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pip install pmaw\n",
+    "!pip install ipdb"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9e3a16a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import datetime as dt\n",
+    "from pmaw import PushshiftAPI\n",
+    "import ipdb\n",
+    "import re\n",
+    "from collections import Counter"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c78aa48e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "subreddit_to_team = {\n",
+    "    'nyjets': 'Jets',\n",
+    "    'falcons': 'Falcons',\n",
+    "    'Chargers': 'chargers', \n",
+    "    'raiders': 'Raiders',\n",
+    "    'Commanders': 'Commanders',\n",
+    "    'bengals': 'Bengals',\n",
+    "    'steelers': 'Steelers',\n",
+    "    'KansasCityChiefs': 'Chiefs',\n",
+    "    'NYGiants': 'Giants',\n",
+    "    '49ers': '49ers',\n",
+    "    'LosAngelesRams': 'Rams',\n",
+    "    'Texans': 'Texans'\n",
+    "}\n",
+    "\n",
+    "teams_fullname_dict = {\n",
+    "    'Rams': 'Los Angeles Rams',\n",
+    "    '49ers': 'San Francisco 49ers',\n",
+    "    'Steelers': 'Pittsburgh Steelers',\n",
+    "    'Chiefs': 'Kansas City Chiefs',\n",
+    "    'Falcons': 'Atlanta Falcons',\n",
+    "    'Giants': 'New York Giants',\n",
+    "    'Bengals': 'Cincinnati Bengals',\n",
+    "    'Commanders': 'Washington Commanders',\n",
+    "    'Jets': 'New York Jets',\n",
+    "    'Texans': 'Houston Texans',\n",
+    "    'Chargers': 'Los Angeles Chargers',\n",
+    "    'Raiders': 'Las Vegas Raiders'\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ead44196",
+   "metadata": {},
+   "source": [
+    "# PRAW"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01349dae",
+   "metadata": {},
+   "source": [
+    "# nfl_gdt_bot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61e33b74",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "subreddit_name = \"Chargers\" #change the subreddit name"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8bfbca87",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import praw\n",
+    "import sys\n",
+    "import pandas as pd\n",
+    "\n",
+    "reddit = praw.Reddit(\n",
+    "    client_id=\"5YsbLcN9W4un7xC1zb-PpQ\",\n",
+    "    client_secret=\"FwbSl-3L957FcoBY-1roTEOEgTaqKg\",\n",
+    "    user_agent=\"download agent\",\n",
+    "    check_for_async=False\n",
+    ")\n",
+    "\n",
+    "\n",
+    "# Replace 'nfl_gdt_bot' with the username of the author whose posts you want to fetch\n",
+    "\n",
+    "user = reddit.redditor('nfl_gdt_bot')\n",
+    "all_submissions = user.submissions.new(limit=1000) #well in total 950 submissions\n",
+    "\n",
+    "def append_record(comment, record):\n",
+    "    #append the current comment\n",
+    "    try:\n",
+    "        record.append([comment.link_id, comment.id, comment.parent_id, comment.body, comment.created_utc, comment.subreddit.display_name,\n",
+    "                        comment.author.name if comment.author is not None else \"\", comment.author_flair_text if comment.author_flair_text is not None else \"\",\n",
+    "                        comment.score])\n",
+    "    except:\n",
+    "        problem = comment\n",
+    "        print(\"issue\", comment.author)\n",
+    "\n",
+    "    if comment.replies.__len__() != 0: #if the comment has children\n",
+    "        comment.replies.replace_more(limit=None)\n",
+    "        for subcomment in comment.replies:\n",
+    "            append_record(subcomment, record)\n",
+    "\n",
+    "# To get all the submissions by the user\n",
+    "#attributes of submission: title, subreddit\n",
+    "#attributes of comments: https://praw.readthedocs.io/en/stable/code_overview/models/comment.html\n",
+    "postList = []\n",
+    "for submission in all_submissions:\n",
+    "    if submission.subreddit.display_name == subreddit_name:\n",
+    "        postList.append(submission)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6edc8a6d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import datetime\n",
+    "\n",
+    "for i, sub in enumerate(postList):\n",
+    "  print(i, sub.title, datetime.datetime.fromtimestamp(sub.created_utc))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "651edbc5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "listFile = []\n",
+    "for i, sub in enumerate(postList):\n",
+    "  listFile.append([i, sub.title, sub.id, datetime.datetime.fromtimestamp(sub.created_utc)])\n",
+    "\n",
+    "#save to a file\n",
+    "df = pd.DataFrame(listFile, columns=[\"index\",\"post title\",\"post id\", \"created time\"])\n",
+    "df.to_csv(f'index2post_{subreddit_name}.csv', index=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fd045b2d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tqdm.notebook import tqdm\n",
+    "\n",
+    "for i, sub in enumerate(postList):\n",
+    "  if i >= 0: #monitor this if statement to resume scraping after interruption\n",
+    "    sub.comments.replace_more(limit=None)\n",
+    "    tempRecord = []\n",
+    "    for new_comment in sub.comments:\n",
+    "        append_record(new_comment, tempRecord)\n",
+    "\n",
+    "    #print out once finish    \n",
+    "    print(i, sub.title, datetime.datetime.fromtimestamp(sub.created_utc))\n",
+    "    print(len(tempRecord))\n",
+    "    df = pd.DataFrame(tempRecord, columns=[\"post_id\", \"comment_id\", \"parent_id\", \"raw_comment\", \"timestamp\", \"subreddit\", \"username\", \"flair\", \"score\"])\n",
+    "    #convert the data value\n",
+    "    df[\"timestamp\"] = df[\"timestamp\"].astype(\"int32\")\n",
+    "    #save the dataframe\n",
+    "    df.to_csv(\"new_data/\" + subreddit_name + '/' + subreddit_name + str(i) + '.tsv', sep='\\t', index=False, quotechar='\"')"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.0"
+  },
+  "vscode": {
+   "interpreter": {
+    "hash": "361debdbcb73bafade6d872007b92447bc890f2953731dacda767a62bf0b2180"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
