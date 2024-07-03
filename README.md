@@ -1,6 +1,6 @@
-# intergroup-nfl
+# Intergroup Bias in NFL comments
 
-This repository contains all code, data and notebooks for the paper ["Do they mean ‘us’? Interpreting Referring Expressions in Intergroup Bias"]().
+This repository contains all code, data and notebooks for the paper ["Do they mean ‘us’? Interpreting Referring Expressions in Intergroup Bias"](https://arxiv.org/abs/2406.17947).
 
 ## Data
 
@@ -17,4 +17,4 @@ We also release metadata on our larger raw dataset that we perform analysis on.
 Explanations (with and without win probability) were generated using GPT-4o with the script `explanations-gpt.py` and the prompt `explanations.txt` and `explanations-wp.txt`. `fewshot-gpt.py` prompts GPT-4o with different 
 
 
-We finetuned [Llama-3](https://huggingface.co/meta-llama/Meta-Llama-3-8B) using the Axolotl framework. `llama.yml` lists our finetuning configuration. `infer_llama.py` performs inference with quantization and LoRA (if necessary) and writes the model outputs, and predicted tagged sentences to the model directory.
+We finetuned [Llama-3](https://huggingface.co/meta-llama/Meta-Llama-3-8B) using the [Axolotl](https://github.com/OpenAccess-AI-Collective/axolotl) framework &mdash; follow the instructions on the repo to setup a virtual environment for model fine-tuning and development. `llama.yml` lists our finetuning configuration. `infer_llama.py` performs inference with quantization and LoRA (if necessary) and writes the model outputs, and predicted tagged sentences to the model directory.
