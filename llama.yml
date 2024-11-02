@@ -1,27 +1,27 @@
-base_model: meta-llama/Meta-Llama-3-8B
+base_model: meta-llama/Llama-3.1-8B-Instruct
 model_type: LlamaForCausalLM
 tokenizer_type: AutoTokenizer
-seed: 5
+seed: 1
 
 load_in_8bit: false
 load_in_4bit: false
 strict: false
 
 datasets:
-  - path: /home/vg22453/football/modeling/data/all_train.json
+  - path: /home/venkat/Desktop/intergroup-nfl/data/all_train_nowp.json
     ds_type: json
     type: alpaca
     split: train
 
 test_datasets:
-  - path: /home/vg22453/football/modeling/data/all_eval.json
+  - path: /home/venkat/Desktop/intergroup-nfl/data/all_eval_nowp.json
     ds_type: json
     type: alpaca
     split: train
 
 load_best_model_at_end: True
-dataset_prepared_path: /home/vg22453/football/modeling/data/
-output_dir: /home/vg22453/football/modeling/llama-8b/nowp-3/
+dataset_prepared_path: /home/venkat/Desktop/intergroup-nfl/data/
+output_dir: /home/venkat/Desktop/intergroup-nfl/models/llama31-8b-nowp-1/
 
 sequence_len: 2560
 sample_packing: true
@@ -29,8 +29,8 @@ pad_to_sequence_len: true
 eval_sample_packing: false
 
 gradient_accumulation_steps: 1
-micro_batch_size: 4
-eval_batch_size: 4
+micro_batch_size: 2
+eval_batch_size: 2
 num_epochs: 2
 optimizer: paged_adamw_8bit
 lr_scheduler: cosine
@@ -47,7 +47,7 @@ tf32: false
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-logging_steps: 1
+logging_steps: 10
 flash_attention: true
 
 eval_steps: 0.1
@@ -58,4 +58,6 @@ special_tokens:
    pad_token: <|end_of_text|>
 
 wandb_project: intergroup-bias
-wandb_name: llama3-fft-nowp-3
+wandb_name: llama31-8b-fft-nowp-2
+
+# deepspeed: deepspeed_configs/zero3_bf16.json

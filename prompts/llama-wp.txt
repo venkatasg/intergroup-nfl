@@ -1,4 +1,4 @@
-Tag references to entities as in-group ([IN]), out-group ([OUT]) or other ([OTHER]) in live, online sports comments during NFL games. The input is the comment, the in-group team the commenter supports, the out-group opponent team during that game, and the win probability for the in-group at the time of the comment. The win probability is the probability of the in-group winning the game at the time of the comment - if the win probability is high, the in-group team is probably doing well and going to win. Using knowledge of American football and contextual language understanding, identify words and phrases denoting entities (players, teams, city names, sub-groups within the team) that refer to the in-group ([IN] - team the commenter supports), out-group ([OUT] - the opponent) or other teams ([OTHER] - some other team in the NFL that is not the in-group or the opponent), with respect to the commenter. Return the list of words/phrases that are to be tagged (REF_EXPRESSIONS), an EXPLANATION reasoning over why these words and phrases in COMMENT should be tagged and with what tag, and the TARGET comment itself with relevant words/phrases replaced with the respective tags ([IN], [OUT] or [OTHER]) in your final output.
+Tag references to entities as in-group ([IN]), out-group ([OUT]) or other ([OTHER]) in live, online sports comments during NFL games. The input is the comment, the parent comment (if the comment is a reply, else it will be 'None'), the in-group team the commenter supports, the out-group opponent team during that game, and the win probability for the in-group at the time of the comment. The win probability is the probability of the in-group winning the game at the time of the comment - if the win probability is high, the in-group team is probably doing well and going to win. Using knowledge of American football and contextual language understanding, identify words and phrases denoting entities (players, teams, city names, sub-groups within the team) that refer to the in-group ([IN] - team the commenter supports), out-group ([OUT] - the opponent) or other teams ([OTHER] - some other team in the NFL that is not the in-group or the opponent), with respect to the commenter. Return the list of words/phrases that are to be tagged (REF_EXPRESSIONS), an EXPLANATION reasoning over why these words and phrases in COMMENT should be tagged and with what tag, and the TARGET comment itself with relevant words/phrases replaced with the respective tags ([IN], [OUT] or [OTHER]) in your final output.
 
 Each sentence in a comment is separated by a [SENT] token. Sometimes a sentence in the comment will be about the in/out/other group but not have an explicit word/phrase that refers to the group; In such cases, tag the [SENT] token for that sentence with the corresponding tag label.
 
@@ -9,6 +9,7 @@ Here are 6 examples, with REF_EXPRESSIONS being the list of words/phrases to be 
 #### Example 1
 
 COMMENT: [SENT] Defense getting absolutely bullied by a dude that looks like he sells solar panels
+PARENT COMMENT: None
 IN-GROUP: Jets
 OUT-GROUP: Bears
 WIN PROBABILITY: 71.5%
@@ -19,6 +20,7 @@ TARGET: [SENT] [IN] getting absolutely bullied by [OUT] that looks like [OUT] se
 #### Example 2
 
 COMMENT: [SENT] Hasn't really been him . [SENT] Receivers have been missing a lot of easy catches.
+PARENT COMMENT: Dont know maybe Tua is choking, all the pressure
 IN-GROUP: Dolphins
 OUT-GROUP: Chargers
 WIN PROBABILITY: 49.2%
@@ -29,6 +31,7 @@ TARGET: [SENT] Hasn't really been [IN] . [SENT] [IN] have been missing a lot of 
 #### Example 3
 
 COMMENT: [SENT] Cards and rams are gonna be in the post-season regardless, so I don't really care about them losing unless they play us.
+PARENT COMMENT: Who do y'all want to lose this afternoon for Cards/Seahawks game?
 IN-GROUP: 49ers
 OUT-GROUP: Jaguars
 WIN PROBABILITY: 99.7%
@@ -39,6 +42,7 @@ TARGET: [SENT] [OTHER] and [OTHER] are gonna be in the post-season regardless, s
 #### Example 4
 
 COMMENT: [SENT] How are we this shit on defense
+PARENT COMMENT: None
 IN-GROUP: Steelers
 OUT-GROUP: Eagles
 WIN PROBABILITY: 4.0%
@@ -49,6 +53,7 @@ TARGET: [SENT] How are [IN] this shit on defense
 #### Example 5
 
 COMMENT: [SENT] The chiefs got straight fucked with that Herbert INT getting called dead . [SENT] Suck it , KC !	
+PARENT COMMENT: None
 IN-GROUP: Chargers
 OUT-GROUP: Chiefs
 WIN PROBABILITY: 43.2%
@@ -59,6 +64,7 @@ TARGET: [SENT] [OUT] got straight fucked with that [IN] INT getting called dead 
 #### Example 6
 
 COMMENT: [SENT] Need points but 7 would be HUGE momentum
+PARENT COMMENT: None
 IN-GROUP: Bengals
 OUT-GROUP: Chiefs
 WIN PROBABILITY: 21.5%
@@ -71,6 +77,7 @@ TARGET: [IN] Need points but 7 would be HUGE momentum
 Some comments will have no explicit or implicit reference to the in-group, out-group, or other, or it could be extremely hard to disambiguate any references based on given information. In such cases, return Target as a copy of Comment, justify this with the Explanation, "No explicit or implicit references to tag.", and return [] for REF_EXPRESSIONS. Here is an example:
 
 COMMENT: [SENT] I thought so. [SENT] Wish I could say the same ;)
+PARENT COMMENT: Great input
 IN-GROUP: Jaguars
 OUT-GROUP: Titans
 WIN PROBABILITY: 41.5%

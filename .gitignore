@@ -2,3 +2,6 @@
 .nova/
 .virtual*
 notebooks/.ipynb_*
+outputs/*
+data/test_data.tsv
+data/*.json

@@ -33,6 +33,7 @@ import torch
 from peft import PeftModel
 from torch.utils.data import DataLoader
 from datasets import load_dataset, Dataset
+import wandb
 
 from transformers import (
     AutoModelForCausalLM,
@@ -83,6 +84,10 @@ class ModelArguments:
     use_fast_tokenizer: bool = field(
         default=True,
         metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
+    )
+    quant: bool = field(
+        default=True,
+        metadata={"help": "Whether to quantize or not."},
     )
     trust_remote_code: bool = field(
         default=True,
@@ -139,6 +144,7 @@ class DataGenerationArguments:
 
 
 def main():
+    wandb.login()
     parser = HfArgumentParser((ModelArguments, DataGenerationArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
@@ -159,7 +165,7 @@ def main():
     
     # Load the dataset 
     dataset = load_dataset('csv', data_files=data_args.data, sep='\t', index_col=None, quoting=csv.QUOTE_NONE, escapechar='\\')['train']
-    # dataset = dataset.filter(lambda row: row['split']=='test')
+    dataset = dataset.filter(lambda row: row['split']=='test')
     
     with open(data_args.prompt) as f:
         instructions = f.read()
@@ -191,7 +197,8 @@ def main():
         Takes an input row, and makes a long string with instruction, comment, in-group team, out-group team, as well as win probability.
         '''  
         input_prompt = (
-            "COMMENT: " + row["tokenized_comment"] + "\n" +
+            "COMMENT: " + str(row["tokenized_comment"]) + "\n" +
+            "PARENT_COMMENT: " + str(row["parent_comment"]) + "\n" +
             "IN-GROUP: " + row['team'].title() + "\n" +
             "OUT-GROUP: " + row['opp'].title() + "\n" 
         )
@@ -224,7 +231,6 @@ def main():
         return {'full_input': full_input}
         
     dataset = dataset.map(create_input_context, load_from_cache_file=not data_args.overwrite_cache)
-    
     ####### MODIFY TOKENIZER HERE TO ADD VOCAB ITEMS ########
     
     # Tokenizer config
@@ -237,10 +243,10 @@ def main():
     tokenizer.pad_token = tokenizer.eos_token
     
     ###### INITIALIZE AND MODIFY MODEL WITH NEW TOKENS ######
-    if model_args.lora_path:
+    if model_args.quant:
         quant_config = bnb4_config
     else:
-        quant_config = bnb8_config
+        quant_config = None
         
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_path,
@@ -301,16 +307,23 @@ def main():
         output_path = data_args.output_path
     
     # regex pattern to get only input
-    patt =  re.compile("\n:esnopseR ###\n\n(.*)\s:TNEMMOC\n:tupnI ###.*", re.DOTALL)
-        
+    patt =  re.compile(r"\n:esnopseR ###\n\n(.*)\s:TNEMMOC\n:tupnI ###.*", re.DOTALL)
+    
+    run = wandb.init(
+        # Set the project where this run will be logged
+        project="intergroup-bias",
+        name="inference-chkpt480-quant"
+        # Track hyperparameters and run metadata
+    )
+    total_num_samples = len(dataset)
     with torch.no_grad():
-        for batch in dataloader:
+        for batch_num, batch in enumerate(dataloader):
             model_input = {k: v.to('cuda') for k, v in batch.items() if k in ['input_ids', 'attention_mask']}
             if data_args.wp:
                 wp = batch['wp'].detach().cpu().numpy().item()
-                preds = model.generate(**model_input, max_new_tokens=data_args.max_generation_length, eos_token_id=terminators, do_sample=True, temperature=wp).detach().cpu().numpy()
+                preds = model.generate(**model_input, max_new_tokens=data_args.max_generation_length, eos_token_id=terminators, do_sample=True, temperature=wp, pad_token_id=tokenizer.eos_token_id).detach().cpu().numpy()
             else:
-                preds = model.generate(**model_input, max_new_tokens=data_args.max_generation_length, eos_token_id=terminators, do_sample=False).detach().cpu().numpy()
+                preds = model.generate(**model_input, max_new_tokens=data_args.max_generation_length, eos_token_id=terminators, do_sample=False, pad_token_id=tokenizer.eos_token_id).detach().cpu().numpy()
             
             decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True, clean_up_tokenization_spaces=True)
             decoded_inputs = tokenizer.batch_decode(batch['input_ids'], skip_special_tokens=True, clean_up_tokenization_spaces=True)
@@ -319,17 +332,17 @@ def main():
             decoded_outputs = [decoded_preds[i][prompt_lengths[i]:] for i in range(len(prompt_lengths))]
             
             if data_args.wp:         
-                filename = output_path + '/seed' + str(data_args.seed) + '_wp_'
+                filename = output_path + '/seed-' + str(data_args.seed) + '_wp_'
             else:
-                filename = output_path + '/seed' + str(data_args.seed) + '_'
+                filename = output_path + '/seed-' + str(data_args.seed) + '-'
                 
-            with open(filename + 'sample-output.txt', 'a') as f:
+            with open(filename + 'qqsample-output.txt', 'a') as f:
                 for i, line in enumerate(decoded_outputs):
                     input_text = patt.search(decoded_inputs[i][::-1]).group(1)[::-1]
                     newline = input_text.strip() + "\n" + line.strip()
                     f.write(newline + "\n======\n")
             
-            with open(filename + 'sample-sents.txt', 'a') as f: 
+            with open(filename + 'qqsample-sents.txt', 'a') as f: 
                 decoded_targets = []
                 for ind, s in enumerate(decoded_outputs):
                     if re.search(r'(.*)TARGET:\s(.*)', s):
@@ -339,6 +352,7 @@ def main():
                     
                 for line in decoded_targets:
                     f.write(line+"\n")
+            wandb.log({"samples_processed": batch_num*data_args.batch_size})
 
 if __name__ == "__main__":
     main()
