@@ -8,20 +8,20 @@ load_in_4bit: false
 strict: false
 
 datasets:
-  - path: /home/venkat/Desktop/intergroup-nfl/data/train_nowp.json
+  - path: /home/venkat/Desktop/intergroup-nfl/data/train_wp.json
     ds_type: json
     type: alpaca
     split: train
 
 test_datasets:
-  - path: /home/venkat/Desktop/intergroup-nfl/data/eval_nowp.json
+  - path: /home/venkat/Desktop/intergroup-nfl/data/eval_wp.json
     ds_type: json
     type: alpaca
     split: train
 
 load_best_model_at_end: True
 dataset_prepared_path: /home/venkat/Desktop/intergroup-nfl/data/
-output_dir: /home/venkat/Desktop/intergroup-nfl/models/llama31-8b-nowp-1/
+output_dir: /home/venkat/Desktop/intergroup-nfl/models/llama31-8b-wp-1/
 
 sequence_len: 2560
 sample_packing: true
@@ -58,6 +58,6 @@ special_tokens:
    pad_token: <|end_of_text|>
 
 wandb_project: intergroup-bias
-wandb_name: llama31-8b-fft-nowp-2
+wandb_name: llama31-8b-fft-wp-2
 
 # deepspeed: deepspeed_configs/zero3_bf16.json
