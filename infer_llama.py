@@ -144,7 +144,7 @@ class DataGenerationArguments:
 
 
 def main():
-    wandb.login()
+    # wandb.login()
     parser = HfArgumentParser((ModelArguments, DataGenerationArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
@@ -198,7 +198,7 @@ def main():
         '''  
         input_prompt = (
             "COMMENT: " + str(row["tokenized_comment"]) + "\n" +
-            "PARENT_COMMENT: " + str(row["parent_comment"]) + "\n" +
+            "PARENT COMMENT: " + str(row["parent_comment"]) + "\n" +
             "IN-GROUP: " + row['team'].title() + "\n" +
             "OUT-GROUP: " + row['opp'].title() + "\n" 
         )
@@ -309,12 +309,12 @@ def main():
     # regex pattern to get only input
     patt =  re.compile(r"\n:esnopseR ###\n\n(.*)\s:TNEMMOC\n:tupnI ###.*", re.DOTALL)
     
-    run = wandb.init(
-        # Set the project where this run will be logged
-        project="intergroup-bias",
-        name="inference-chkpt480-quant"
-        # Track hyperparameters and run metadata
-    )
+    # run = wandb.init(
+    #     # Set the project where this run will be logged
+    #     project="intergroup-bias",
+    #     name="inference-chkpt480-quant"
+    #     # Track hyperparameters and run metadata
+    # )
     total_num_samples = len(dataset)
     with torch.no_grad():
         for batch_num, batch in enumerate(dataloader):
@@ -336,13 +336,13 @@ def main():
             else:
                 filename = output_path + '/seed-' + str(data_args.seed) + '-'
                 
-            with open(filename + 'qqsample-output.txt', 'a') as f:
+            with open(filename + 'eval-output.txt', 'a') as f:
                 for i, line in enumerate(decoded_outputs):
                     input_text = patt.search(decoded_inputs[i][::-1]).group(1)[::-1]
                     newline = input_text.strip() + "\n" + line.strip()
                     f.write(newline + "\n======\n")
             
-            with open(filename + 'qqsample-sents.txt', 'a') as f: 
+            with open(filename + 'eval-sents.txt', 'a') as f: 
                 decoded_targets = []
                 for ind, s in enumerate(decoded_outputs):
                     if re.search(r'(.*)TARGET:\s(.*)', s):
@@ -352,7 +352,7 @@ def main():
                     
                 for line in decoded_targets:
                     f.write(line+"\n")
-            wandb.log({"samples_processed": batch_num*data_args.batch_size})
+            # wandb.log({"samples_processed": batch_num*data_args.batch_size})
 
 if __name__ == "__main__":
     main()
